@@ -10,7 +10,7 @@ fi
 echo
 
 run () {
-	TPAR=$( { gtime -f "%e" mpirun -c $2 -npernode $3 ./prac_p $1 > /dev/null; } 2>&1 )
+	TPAR=$( { salloc -p pops -N 8 srun -n 1 time -f "%e" mpirun -c $2 -npernode $3 ./prac_p $1 > /dev/null; } 2>&1 )
 	echo "C: $2 N: $3 Time: $TPAR"
 }
 
