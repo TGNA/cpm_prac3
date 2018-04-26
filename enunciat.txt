@@ -1,0 +1,11 @@
+Problema del viatjant de Comerç (TSP).
+
+El temps seqüencial és de 44,77 segons per 2000, 149,5 per 3000 i 353,6 per 4000 a les màquines POP.
+
+- Es programarà amb MPI
+- L'execució es farà per els nombre de processos que indica la taula (11 execucions).
+- S'ha de respectar les dades que surten per la sortida estàndard i en la versió paral·lela ha de donar el mateix resultat.
+- El vector 'bo' resultant ha de quedar emmagatzemat sencer al procés 0.
+- L'speedup en qualsevol configuració ha de ser superior a 1.5
+- L'speedup harmònic ha de ser superior a 5.0 per N2000 i 6 per N3000.
+- N4000 i les maquines Odroid son execucions opcionals. (temps execució als Odroids: 64 (2000), 215.5 (3000) i 520,2 (4000))
