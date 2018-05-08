@@ -10,30 +10,22 @@ fi
 echo
 
 run () {
-	TPAR=$( { salloc -p pops -N 8 srun -n 1 time -f "%e" mpirun -c $2 -npernode $3 ./prac_p $1 > /dev/null; } 2>&1 )
-	echo "C: $2 N: $3 Time: $TPAR"
-}
-
-run_iterations() {
-	for i in $(seq 1 10) 
-	do
-		echo -n "$1 $i: "
-		run $1 $2 $3
-	done
+    TPAR=$( { salloc -p pops -N 8 srun -n 1 time -f "%e" mpirun -c $2 -npernode $3 ./prac_p $1 > /dev/null; } 2>&1 )
+    echo "D: $1 C: $2 N: $3 Time: $TPAR"
 }
 
 run_configurations() {
-	run_iterations $1 2 1
-	run_iterations $1 4 1
-	run_iterations $1 8 1
-	run_iterations $1 4 2
-	run_iterations $1 8 2
-	run_iterations $1 16 2
-	run_iterations $1 12 3
-	run_iterations $1 24 3
-	run_iterations $1 32 4
-	run_iterations $1 64 4
-	run_iterations $1 128 4
+    run $1 2 1
+    run $1 4 1
+    run $1 8 1
+    run $1 4 2
+    run $1 8 2
+    run $1 16 2
+    run $1 12 3
+    run $1 24 3
+    run $1 32 4
+    run $1 64 4
+    run $1 128 4
 }
 
 run_configurations 2000

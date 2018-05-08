@@ -20,7 +20,7 @@ float dmin,dist,millor;
     printf("Dimensio %s\n",arg[1]);
     nn=atoi(arg[1]);
     assert(nn<=N);
-
+    srand(1);
     for(i=0; i<nn; i++) X[i]=rand()%(nn*10);
     for(i=0; i<nn; i++) Y[i]=rand()%(nn*10);
   
