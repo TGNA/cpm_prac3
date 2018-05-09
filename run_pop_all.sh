@@ -24,8 +24,8 @@ run_configurations() {
     run $1 12 3
     run $1 24 3
     run $1 32 4
-    run $1 64 4
-    run $1 128 4
+    run $1 64 8
+    run $1 128 16
 }
 
 run_configurations 2000
