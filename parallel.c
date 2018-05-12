@@ -43,44 +43,41 @@ int main(int na, char* arg[]){
         for(i=0; i<nn; i++) X[i]=rand()%(nn*10);
         for(i=0; i<nn; i++) Y[i]=rand()%(nn*10);
 
-        for(i=0; i<nn; i++) distancia[i][i]=0;
-        for(i=0; i<nn; i++)  
-            for(j=i+1; j<nn; j++) 
-                distancia[i][j]= distancia[j][i] = sqrt(pow(X[i]-X[j],2) + pow(Y[i]-Y[j],2));
+        int buff_size = nn / p;
+        int extra_size = nn % p;
 
-        int buffSize = nn / p;
-        int extraSize = nn % p;
-
-        for (i=0; i<p; i++)
-            sizes[i] = buffSize;
-
-        i=0;
-        while(extraSize>0){
-            sizes[i] += 1;
-            i++;
-
-            if(i==p)
-                i=0;
-            extraSize--;
+        for (i = 0; i < p; ++i)
+            sizes[i] = buff_size;
+        i = 0;
+        while(extra_size > 0){
+            sizes[i++] += 1;
+            extra_size--;
         }
-
-        for (i=1; i<p; i++)
+        for (i = 1; i < p; ++i)
             sizes[i] += sizes[i-1];
     }
 
-    MPI_Bcast(&sizes, p, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&distancia, N*(N+1), MPI_FLOAT, 0, MPI_COMM_WORLD);
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Bcast(sizes, p, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(X, nn, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(Y, nn, MPI_INT, 0, MPI_COMM_WORLD);
 
+    for(i=0; i<nn; i++) distancia[i][i]=0;
+    for(i=0; i<nn; i++)  
+        for(j=i+1; j<nn; j++) 
+            distancia[i][j]= distancia[j][i] = sqrt(pow(X[i]-X[j],2) + pow(Y[i]-Y[j],2));
+    
     if (el_meu_rank != 0)
         origin = sizes[el_meu_rank - 1];
 
     end = sizes[el_meu_rank];
+
+    int size = origin + sizes[0];
     
     // TOTs amb Greedy
-    for (primer=origin; primer<(origin + sizes[0]); primer++) 
+    for (primer=origin; primer<size; primer++) 
     {
-        if (primer < end){
+        if (primer < end)
+        {
             dist = 0;
             for(i = 0; i < nn; i++) cami[i] = -1;
             cami[primer] = 0;
@@ -101,11 +98,12 @@ int main(int na, char* arg[]){
                 cami[actual] = i;
                 dist += dmin;
                 // PODA
-                // if (dist >= millor) { dist = 0; break;}
+                if (dist >= millor) { dist = 0; break;}
             }
         }
         for (j = 0; j < p; j++) 
         {
+            aux = -1;
             if (el_meu_rank == j)
             {
                 if (dist) 
@@ -117,13 +115,11 @@ int main(int na, char* arg[]){
                         for(i = 0; i < nn; i++) bo[cami[i]] = i;
                         millor = dist;
                         aux = millor;
-                    } else
-                        aux = -1;
+                    } 
                     distancia[primer][nn] = dist;  // per guardar alternatives
                 }
             }
             MPI_Bcast(&aux, 1, MPI_FLOAT, j, MPI_COMM_WORLD);
-            MPI_Barrier(MPI_COMM_WORLD);
             if (aux <= millor && aux != -1) 
             {
                 millor = aux;
@@ -134,15 +130,16 @@ int main(int na, char* arg[]){
 
     if (el_meu_rank != 0 && el_meu_rank == millor_rank) 
     {
-        MPI_Send(&bo, N, MPI_INT, 0, 0, MPI_COMM_WORLD);
-        MPI_Send(&distancia, N*(N+1), MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
+        MPI_Send(bo, nn, MPI_INT, 0, 0, MPI_COMM_WORLD);
+        MPI_Send(&distancia[bo[0]][nn], 1, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
     }
 
     if(el_meu_rank == 0)
     {
-        if (el_meu_rank != millor_rank) {
-            MPI_Recv(&bo, N, MPI_INT, millor_rank, 0, MPI_COMM_WORLD, &estat);
-            MPI_Recv(&distancia, N*(N+1), MPI_FLOAT, millor_rank, 0, MPI_COMM_WORLD, &estat);
+        if (el_meu_rank != millor_rank) 
+        {
+            MPI_Recv(bo, nn, MPI_INT, millor_rank, 0, MPI_COMM_WORLD, &estat);
+            MPI_Recv(&distancia[bo[0]][nn], 1, MPI_FLOAT, millor_rank, 0, MPI_COMM_WORLD, &estat);
         }
 
         printf("Solucio :\n");
