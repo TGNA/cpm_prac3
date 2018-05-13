@@ -38,13 +38,6 @@ int main(int na, char* arg[])
     assert(nn<=N);
     srand(1);
     
-    if (el_meu_rank == 0)
-    {
-        printf("Dimensio %s\n",arg[1]);
-        for(i=0; i<nn; i++) X[i]=rand()%(nn*10);
-        for(i=0; i<nn; i++) Y[i]=rand()%(nn*10);
-    }
-    
     int buff_size = nn / p;
     int extra_size = nn % p;
 
@@ -64,9 +57,8 @@ int main(int na, char* arg[])
 
     end = sizes[el_meu_rank];
 
-    MPI_Bcast(X, nn, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(Y, nn, MPI_INT, 0, MPI_COMM_WORLD);
-    
+    for(i=0; i<nn; i++) X[i]=rand()%(nn*10);
+    for(i=0; i<nn; i++) Y[i]=rand()%(nn*10);
     // for(i=0; i<nn; i++) distancia[i][i]=0;
     for(i=0; i<nn; i++)  
         for(j=i+1; j<nn; j++) 
@@ -139,6 +131,7 @@ int main(int na, char* arg[])
             MPI_Recv(bo, nn, MPI_INT, millor_rank, 0, MPI_COMM_WORLD, &estat);
             MPI_Recv(&distancia[bo[0]][nn], 1, MPI_FLOAT, millor_rank, 0, MPI_COMM_WORLD, &estat);
         }
+        printf("Dimensio %s\n",arg[1]);
         printf("Solucio :\n");
         for(i = 0; i < nn; i++)
             printf("%d\n",bo[i]);
